@@ -166,6 +166,125 @@ bool Bass::assemble(const string& statement) {
     return true;
   }
 
+  // Cyjorg was here
+  // read8 name, filename, offset
+  if (s.match("read8 ?*")) {
+    lstring p = s.ltrim<1>("read8 ").qsplit(",").strip();
+
+    // get name of constant
+    string name;
+    name = p.take(0);
+
+    // get filename
+    if(!p(0).match("\"*\"")) error("missing filename");
+    string filename = {filepath(), p.take(0).trim<1>("\"")};
+
+    // attempt to open file
+    file fp;
+    if(!fp.open(filename, file::mode::read)) error("file not found: ", filename);
+
+    // get offset
+    unsigned offset;
+    if (p.size()) {
+      offset = evaluate(p.take(0));
+    } else {
+      error("missing offset: ", s);
+    }
+
+    if (offset > fp.size()) error("offset too large: ", s);
+
+    // go to offset
+    fp.seek(offset);
+
+    // set constant (hopefully)
+    setConstant({name}, fp.read());
+
+    // return true because idk just do it lol
+    return true;
+  }
+
+  if (s.match("read16 ?*")) {
+    lstring p = s.ltrim<1>("read16 ").qsplit(",").strip();
+
+    // get name of constant
+    string name;
+    name = p.take(0);
+
+    // get filename
+    if(!p(0).match("\"*\"")) error("missing filename");
+    string filename = {filepath(), p.take(0).trim<1>("\"")};
+
+    // attempt to open file
+    file fp;
+    if(!fp.open(filename, file::mode::read)) error("file not found: ", filename);
+
+    // get offset
+    unsigned offset;
+    if (p.size()) {
+      offset = evaluate(p.take(0));
+    } else {
+      error("missing offset: ", s);
+    }
+
+    if (offset > fp.size()) error("offset too large: ", s);
+
+    // go to offset
+    fp.seek(offset);
+
+    unsigned value = 0;
+    for (int i = 0; i < 2; i++) {
+        value = value << 8;
+        value |= fp.read();
+    }
+
+    // set constant
+    setConstant({name}, value);
+
+    // return true because idk just do it lol
+    return true;
+  }
+
+  if (s.match("read32 ?*")) {
+    lstring p = s.ltrim<1>("read32 ").qsplit(",").strip();
+
+    // get name of constant
+    string name;
+    name = p.take(0);
+
+    // get filename
+    if(!p(0).match("\"*\"")) error("missing filename");
+    string filename = {filepath(), p.take(0).trim<1>("\"")};
+
+    // attempt to open file
+    file fp;
+    if(!fp.open(filename, file::mode::read)) error("file not found: ", filename);
+
+    // get offset
+    unsigned offset;
+    if (p.size()) {
+      offset = evaluate(p.take(0));
+    } else {
+      error("missing offset: ", s);
+    }
+
+    if (offset > fp.size()) error("offset too large: ", s);
+
+    // go to offset
+    fp.seek(offset);
+
+    unsigned value = 0;
+    for (int i = 0; i < 4; i++) {
+        value = value << 8;
+        value |= fp.read();
+    }
+
+    // set constant
+    setConstant({name}, value);
+
+    // return true because idk just do it lol
+    return true;
+  }
+
   //fill length [, with]
   if(s.match("fill ?*")) {
     lstring p = s.ltrim<1>("fill ").qsplit(",").strip();

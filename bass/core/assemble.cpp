@@ -175,29 +175,52 @@ bool Bass::assemble(const string& statement) {
     string name;
     name = p.take(0);
 
-    // get filename
-    if(!p(0).match("\"*\"")) error("missing filename");
-    string filename = {filepath(), p.take(0).trim<1>("\"")};
-
-    // attempt to open file
-    file fp;
-    if(!fp.open(filename, file::mode::read)) error("file not found: ", filename);
-
-    // get offset
     unsigned offset;
-    if (p.size()) {
-      offset = evaluate(p.take(0));
+
+    // get filename
+    if(!p(0).match("\"*\"")) {
+      // get offset
+      if (p.size()) {
+        offset = evaluate(p.take(0));
+      } else {
+        error("missing offset: ", s);
+      }
+
+      if (offset > targetFile.size()) error("offset too large: ", s);
+
+      // get current offset
+      unsigned currOffset = targetFile.offset();
+
+      // go to offset
+      targetFile.seek(offset);
+
+      // set constant (hopefully)
+      setConstant({name}, targetFile.read());
+
+      // restore offset
+      targetFile.seek(currOffset);
     } else {
-      error("missing offset: ", s);
+      string filename = {filepath(), p.take(0).trim<1>("\"")};
+
+      // attempt to open file
+      file fp;
+      if(!fp.open(filename, file::mode::read)) error("file not found: ", filename);
+
+      // get offset
+      if (p.size()) {
+        offset = evaluate(p.take(0));
+      } else {
+        error("missing offset: ", s);
+      }
+
+      if (offset > fp.size()) error("offset too large: ", s);
+
+      // go to offset
+      fp.seek(offset);
+
+      // set constant (hopefully)
+      setConstant({name}, fp.read());
     }
-
-    if (offset > fp.size()) error("offset too large: ", s);
-
-    // go to offset
-    fp.seek(offset);
-
-    // set constant (hopefully)
-    setConstant({name}, fp.read());
 
     // return true because idk just do it lol
     return true;
@@ -210,31 +233,56 @@ bool Bass::assemble(const string& statement) {
     string name;
     name = p.take(0);
 
-    // get filename
-    if(!p(0).match("\"*\"")) error("missing filename");
-    string filename = {filepath(), p.take(0).trim<1>("\"")};
-
-    // attempt to open file
-    file fp;
-    if(!fp.open(filename, file::mode::read)) error("file not found: ", filename);
-
-    // get offset
-    unsigned offset;
-    if (p.size()) {
-      offset = evaluate(p.take(0));
-    } else {
-      error("missing offset: ", s);
-    }
-
-    if (offset > fp.size()) error("offset too large: ", s);
-
-    // go to offset
-    fp.seek(offset);
-
     unsigned value = 0;
-    for (int i = 0; i < 2; i++) {
+    unsigned offset;
+
+    // get filename
+    if(!p(0).match("\"*\"")) {
+      // get offset
+      if (p.size()) {
+        offset = evaluate(p.take(0));
+      } else {
+        error("missing offset: ", s);
+      }
+
+      if (offset > targetFile.size()) error("offset too large: ", s);
+
+      // get current offset
+      unsigned currOffset = targetFile.offset();
+
+      // go to offset
+      targetFile.seek(offset);
+
+      for (int i = 0; i < 2; i++) {
+        value = value << 8;
+        value |= targetFile.read();
+      }
+
+      // restore offset
+      targetFile.seek(currOffset);
+    } else {
+      string filename = {filepath(), p.take(0).trim<1>("\"")};
+
+      // attempt to open file
+      file fp;
+      if(!fp.open(filename, file::mode::read)) error("file not found: ", filename);
+
+      // get offset
+      if (p.size()) {
+        offset = evaluate(p.take(0));
+      } else {
+        error("missing offset: ", s);
+      }
+
+      if (offset > fp.size()) error("offset too large: ", s);
+
+      // go to offset
+      fp.seek(offset);
+
+      for (int i = 0; i < 2; i++) {
         value = value << 8;
         value |= fp.read();
+      }
     }
 
     // set constant
@@ -251,31 +299,56 @@ bool Bass::assemble(const string& statement) {
     string name;
     name = p.take(0);
 
-    // get filename
-    if(!p(0).match("\"*\"")) error("missing filename");
-    string filename = {filepath(), p.take(0).trim<1>("\"")};
-
-    // attempt to open file
-    file fp;
-    if(!fp.open(filename, file::mode::read)) error("file not found: ", filename);
-
-    // get offset
-    unsigned offset;
-    if (p.size()) {
-      offset = evaluate(p.take(0));
-    } else {
-      error("missing offset: ", s);
-    }
-
-    if (offset > fp.size()) error("offset too large: ", s);
-
-    // go to offset
-    fp.seek(offset);
-
     unsigned value = 0;
-    for (int i = 0; i < 4; i++) {
+    unsigned offset;
+
+    // get filename
+    if(!p(0).match("\"*\"")) {
+      // get offset
+      if (p.size()) {
+        offset = evaluate(p.take(0));
+      } else {
+        error("missing offset: ", s);
+      }
+
+      if (offset > targetFile.size()) error("offset too large: ", s);
+
+      // get current offset
+      unsigned currOffset = targetFile.offset();
+
+      // go to offset
+      targetFile.seek(offset);
+
+      for (int i = 0; i < 4; i++) {
+        value = value << 8;
+        value |= targetFile.read();
+      }
+
+      // restore offset
+      targetFile.seek(currOffset);
+    } else {
+      string filename = {filepath(), p.take(0).trim<1>("\"")};
+
+      // attempt to open file
+      file fp;
+      if(!fp.open(filename, file::mode::read)) error("file not found: ", filename);
+
+      // get offset
+      if (p.size()) {
+        offset = evaluate(p.take(0));
+      } else {
+        error("missing offset: ", s);
+      }
+
+      if (offset > fp.size()) error("offset too large: ", s);
+
+      // go to offset
+      fp.seek(offset);
+
+      for (int i = 0; i < 4; i++) {
         value = value << 8;
         value |= fp.read();
+      }
     }
 
     // set constant

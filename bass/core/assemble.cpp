@@ -166,6 +166,29 @@ bool Bass::assemble(const string& statement) {
     return true;
   }
 
+  //export filename, offset, length
+  if(s.match("export ?*")) {
+    lstring p = s.ltrim<1>("export ").qsplit(",").strip();
+    if(!p(0).match("\"*\"")) error("missing filename");
+    string filename = {filepath(), p.take(0).trim<1>("\"")};
+    file fp;
+    if(!fp.open(filename, file::mode::write)) error("file not found: ", filename);
+    unsigned offset = p.size() ? evaluate(p.take(0)) : 0;
+
+    // get current offset
+    unsigned currOffset = targetFile.offset();
+    // go to offset
+    if(offset > targetFile.size()) error("export offset too high");
+
+    unsigned length = p.size() ? evaluate(p.take(0)) : 0;
+    if(length == 0) length = targetFile.size() - offset;
+    targetFile.seek(offset);
+    while(!targetFile.end() && length--) fp.write(targetFile.read());
+    targetFile.seek(currOffset);
+    fp.close();
+    return true;
+  }
+
   // Cyjorg was here
   // read8 name, filename, offset
   if (s.match("read8 ?*")) {

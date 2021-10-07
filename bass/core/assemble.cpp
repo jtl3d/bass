@@ -209,8 +209,6 @@ bool Bass::assemble(const string& statement) {
         error("missing offset: ", s);
       }
 
-      if (offset > targetFile.size()) error("offset too large: ", s);
-
       // get current offset
       unsigned currOffset = targetFile.offset();
 
@@ -267,8 +265,6 @@ bool Bass::assemble(const string& statement) {
       } else {
         error("missing offset: ", s);
       }
-
-      if (offset > targetFile.size()) error("offset too large: ", s);
 
       // get current offset
       unsigned currOffset = targetFile.offset();
@@ -333,8 +329,6 @@ bool Bass::assemble(const string& statement) {
       } else {
         error("missing offset: ", s);
       }
-
-      if (offset > targetFile.size()) error("offset too large: ", s);
 
       // get current offset
       unsigned currOffset = targetFile.offset();
